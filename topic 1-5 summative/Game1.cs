@@ -48,7 +48,7 @@ namespace topic_1_5_summative
 
             lightningTexture = Content.Load<Texture2D>("Lightning_McQueen");
             trackTexture = Content.Load<Texture2D>("track");
-            chickHicksTexture = Content.Load<Texture2D>("chickHicks");
+            chickHicksTexture = Content.Load<Texture2D>("chickHicks"); 
 
             // TODO: use this.Content to load your game content here
         }
