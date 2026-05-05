@@ -17,8 +17,12 @@ namespace topic_1_5_summative
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        Rectangle window, lightningRect, chickHicksRect;
-        Texture2D trackTexture, lightningTexture, chickHicksTexture;
+        Rectangle window, lightningRect, chickHicksRect, fireRect;
+        Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture;
+        Vector2 lightningSpeed, chickHicksSpeed; 
+        Screen screen;
+        MouseState mouseState;
+        float seconds;
 
         public Game1()
         {
@@ -35,8 +39,14 @@ namespace topic_1_5_summative
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            lightningRect = new Rectangle(350, 190, 190, 100);
-            chickHicksRect = new Rectangle(500, 190, 190, 100);
+            lightningRect = new Rectangle(320, 100, 120, 70);
+            lightningSpeed = new Vector2(-1, 3);
+            chickHicksRect = new Rectangle(445, 80, 120, 70);
+            chickHicksSpeed = new Vector2(-1, 3);
+            fireRect = new Rectangle(170,190,200,200);
+
+            screen = Screen.intro;
+            
 
 
             base.Initialize();
@@ -48,7 +58,9 @@ namespace topic_1_5_summative
 
             lightningTexture = Content.Load<Texture2D>("Lightning_McQueen");
             trackTexture = Content.Load<Texture2D>("track");
-            chickHicksTexture = Content.Load<Texture2D>("chickHicks"); 
+            chickHicksTexture = Content.Load<Texture2D>("chickHicks");
+            introTexture = Content.Load<Texture2D>("introScreen");
+            fireTexture = Content.Load<Texture2D>("fire");
 
             // TODO: use this.Content to load your game content here
         }
@@ -57,8 +69,49 @@ namespace topic_1_5_summative
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            this.Window.Title = mouseState.Position.ToString();
+            mouseState = Mouse.GetState();
 
-            // TODO: Add your update logic here
+            if (screen == Screen.intro)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed)
+                    screen = Screen.main;
+
+            }
+
+            else if (screen == Screen.main)
+            {
+                seconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                
+                lightningRect.X += (int)lightningSpeed.X;
+                lightningRect.Y += (int)lightningSpeed.Y;
+                chickHicksRect.X += (int)chickHicksSpeed.X;
+                chickHicksRect.Y += (int)chickHicksSpeed.Y;
+
+                if (seconds >= 1)
+                {
+                    lightningSpeed.X = 0;
+                    lightningSpeed.Y = 0;
+                    chickHicksSpeed.X = 0;
+                    chickHicksSpeed.Y = 0;
+                    chickHicksSpeed.X = -1;
+
+                }
+
+                if (chickHicksRect.Left <= lightningRect.Right)
+                {
+                    lightningSpeed.X = -1;
+
+                }
+
+               if (lightningRect.Right <= 320)
+                {
+                    lightningSpeed.X = 0;
+                    chickHicksSpeed.X = 0;
+                }
+
+            }
+             
 
             base.Update(gameTime);
         }
@@ -69,9 +122,22 @@ namespace topic_1_5_summative
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(trackTexture, window, Color.White);
-            _spriteBatch.Draw(lightningTexture, lightningRect, Color.White);
-            _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
+            if (screen == Screen.intro)
+            {
+                _spriteBatch.Draw(introTexture,window, Color.White);
+            }
+            else if (screen == Screen.main)
+            {
+                _spriteBatch.Draw(trackTexture, window, Color.White);
+                _spriteBatch.Draw(lightningTexture, lightningRect, Color.White);
+                _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
+                if (lightningRect.Right <= 320)
+                {
+                   _spriteBatch.Draw(fireTexture, fireRect, Color.White);
+                }
+                   
+            }
+            
 
             _spriteBatch.End();
 
