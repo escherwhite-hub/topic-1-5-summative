@@ -17,9 +17,9 @@ namespace topic_1_5_summative
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        Rectangle window, lightningRect, chickHicksRect, fireRect;
-        Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture;
-        Vector2 lightningSpeed, chickHicksSpeed; 
+        Rectangle window, lightningRect, chickHicksRect, fireRect, deadLightningRect;
+        Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture, podiumTexture, deadLightningTexture;
+        Vector2 lightningSpeed, chickHicksSpeed, deadLightningSpeed; 
         Screen screen;
         MouseState mouseState;
         float seconds;
@@ -44,6 +44,9 @@ namespace topic_1_5_summative
             chickHicksRect = new Rectangle(445, 80, 120, 70);
             chickHicksSpeed = new Vector2(-1, 3);
             fireRect = new Rectangle(170,190,200,200);
+            deadLightningRect = new Rectangle(800, 400, 120, 70);
+            deadLightningSpeed = new Vector2(0, 0);
+
 
             screen = Screen.intro;
             
@@ -61,6 +64,8 @@ namespace topic_1_5_summative
             chickHicksTexture = Content.Load<Texture2D>("chickHicks");
             introTexture = Content.Load<Texture2D>("introScreen");
             fireTexture = Content.Load<Texture2D>("fire");
+            podiumTexture = Content.Load<Texture2D>("podium");
+            deadLightningTexture = Content.Load<Texture2D>("deadLightning");
 
             // TODO: use this.Content to load your game content here
         }
@@ -108,10 +113,32 @@ namespace topic_1_5_summative
                 {
                     lightningSpeed.X = 0;
                     chickHicksSpeed.X = 0;
+                    chickHicksSpeed.Y = 3;
                 }
 
+                if (chickHicksRect.Top >= 600)
+                {
+                    screen = Screen.podium;
+                }
+
+              
+
             }
-             
+            if (screen == Screen.podium)
+            {
+                deadLightningRect.X += (int)deadLightningSpeed.X;
+                chickHicksRect.X = 360;
+                chickHicksRect.Y = 420;
+                deadLightningSpeed.X = -1;
+
+                if (deadLightningRect.X <= 520)
+                {
+                    deadLightningSpeed.X = 0;
+                }
+
+                
+            }
+
 
             base.Update(gameTime);
         }
@@ -124,7 +151,7 @@ namespace topic_1_5_summative
 
             if (screen == Screen.intro)
             {
-                _spriteBatch.Draw(introTexture,window, Color.White);
+                _spriteBatch.Draw(introTexture, window, Color.White);
             }
             else if (screen == Screen.main)
             {
@@ -133,13 +160,19 @@ namespace topic_1_5_summative
                 _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
                 if (lightningRect.Right <= 320)
                 {
-                   _spriteBatch.Draw(fireTexture, fireRect, Color.White);
+                    _spriteBatch.Draw(fireTexture, fireRect, Color.White);
                 }
-                   
-            }
-            
 
-            _spriteBatch.End();
+            }
+            else if (screen == Screen.podium)
+            {
+                _spriteBatch.Draw(podiumTexture, window, Color.White);
+                _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
+                _spriteBatch.Draw(deadLightningTexture, deadLightningRect, Color.SlateGray);
+            }
+
+
+                _spriteBatch.End();
 
             base.Draw(gameTime);
         }
