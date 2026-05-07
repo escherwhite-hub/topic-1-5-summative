@@ -17,13 +17,15 @@ namespace topic_1_5_summative
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        Rectangle window, lightningRect, chickHicksRect, fireRect, deadLightningRect;
+        Rectangle window, lightningRect, chickHicksRect, fireRect, deadLightningRect, chickHicksRectPodium;
         Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture, podiumTexture, deadLightningTexture;
-        Vector2 lightningSpeed, chickHicksSpeed, deadLightningSpeed; 
+        Vector2 lightningSpeed, chickHicksSpeed, deadLightningSpeed, chickHicksSpeedPodium; 
         Screen screen;
         MouseState mouseState;
         float seconds;
-
+        SpriteFont talkingFont;
+        float chickRotation = 0f;
+        bool isspinning = false;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -33,7 +35,7 @@ namespace topic_1_5_summative
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+
             window = new Rectangle(0,0,800,600);
             _graphics.PreferredBackBufferHeight = window.Height;
             _graphics.PreferredBackBufferWidth = window.Width;
@@ -46,11 +48,10 @@ namespace topic_1_5_summative
             fireRect = new Rectangle(170,190,200,200);
             deadLightningRect = new Rectangle(800, 400, 120, 70);
             deadLightningSpeed = new Vector2(0, 0);
-
+            chickHicksRectPodium = new Rectangle(360, 420, 120, 70);
+            chickHicksSpeedPodium = new Vector2(0, 0);
 
             screen = Screen.intro;
-            
-
 
             base.Initialize();
         }
@@ -66,8 +67,7 @@ namespace topic_1_5_summative
             fireTexture = Content.Load<Texture2D>("fire");
             podiumTexture = Content.Load<Texture2D>("podium");
             deadLightningTexture = Content.Load<Texture2D>("deadLightning");
-
-            // TODO: use this.Content to load your game content here
+            talkingFont = Content.Load<SpriteFont>("talking");
         }
 
         protected override void Update(GameTime gameTime)
@@ -81,13 +81,11 @@ namespace topic_1_5_summative
             {
                 if (mouseState.LeftButton == ButtonState.Pressed)
                     screen = Screen.main;
-
             }
 
             else if (screen == Screen.main)
             {
                 seconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                
                 lightningRect.X += (int)lightningSpeed.X;
                 lightningRect.Y += (int)lightningSpeed.Y;
                 chickHicksRect.X += (int)chickHicksSpeed.X;
@@ -100,13 +98,11 @@ namespace topic_1_5_summative
                     chickHicksSpeed.X = 0;
                     chickHicksSpeed.Y = 0;
                     chickHicksSpeed.X = -1;
-
                 }
 
                 if (chickHicksRect.Left <= lightningRect.Right)
                 {
                     lightningSpeed.X = -1;
-
                 }
 
                if (lightningRect.Right <= 320)
@@ -120,23 +116,37 @@ namespace topic_1_5_summative
                 {
                     screen = Screen.podium;
                 }
-
-              
-
             }
-            if (screen == Screen.podium)
+            else if (screen == Screen.podium)
             {
                 deadLightningRect.X += (int)deadLightningSpeed.X;
-                chickHicksRect.X = 360;
-                chickHicksRect.Y = 420;
-                deadLightningSpeed.X = -1;
+                chickHicksRectPodium.X += (int)chickHicksSpeedPodium.X;
+                chickHicksRectPodium.Y += (int)chickHicksSpeedPodium.Y;
+                deadLightningSpeed.X = -2;
+                
+               if (deadLightningRect.X <= chickHicksRectPodium.Right)
+                {
 
-                if (deadLightningRect.X <= 520)
+                    chickHicksSpeedPodium.X = -5;
+                    chickHicksSpeedPodium.Y = -2;
+                    isspinning = true;
+                    
+                }
+               if (isspinning)
+                {
+                    chickRotation -= 0.3f;
+                    if(chickRotation <= 600 * -MathHelper.TwoPi)
+                    {
+                        chickRotation = 0f;
+                        isspinning = false;
+                    }
+                }
+
+               if (deadLightningRect.X <= 360)
                 {
                     deadLightningSpeed.X = 0;
                 }
 
-                
             }
 
 
@@ -162,16 +172,17 @@ namespace topic_1_5_summative
                 {
                     _spriteBatch.Draw(fireTexture, fireRect, Color.White);
                 }
-
             }
             else if (screen == Screen.podium)
             {
                 _spriteBatch.Draw(podiumTexture, window, Color.White);
-                _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
-                _spriteBatch.Draw(deadLightningTexture, deadLightningRect, Color.SlateGray);
+                _spriteBatch.Draw(chickHicksTexture, new Vector2(chickHicksRectPodium.X + chickHicksRectPodium.Width / 2, chickHicksRectPodium.Y + chickHicksRectPodium.Height / 2), null, Color.White, chickRotation, new Vector2(chickHicksTexture.Width / 2, chickHicksTexture.Height / 2), new Vector2((float)chickHicksRectPodium.Width / chickHicksTexture.Width, (float)chickHicksRectPodium.Height / chickHicksTexture.Height), SpriteEffects.None, 0f);
+                _spriteBatch.Draw(deadLightningTexture, deadLightningRect, Color.SlateGray * 0.7f);
+                if (deadLightningRect.X <= 360)
+                {
+                    _spriteBatch.DrawString(talkingFont, "Im Backkk!", new Vector2(444, 411), Color.White);
+                }
             }
-
-
                 _spriteBatch.End();
 
             base.Draw(gameTime);

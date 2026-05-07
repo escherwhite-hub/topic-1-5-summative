@@ -85,6 +85,13 @@
 /processorParam:TextureFormat=Color
 /build:podium.jpg
 
+#begin talking.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:talking.spritefont
+
 #begin track.webp
 /importer:TextureImporter
 /processor:TextureProcessor
