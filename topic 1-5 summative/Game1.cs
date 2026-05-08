@@ -17,8 +17,8 @@ namespace topic_1_5_summative
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        Rectangle window, lightningRect, chickHicksRect, fireRect, deadLightningRect, chickHicksRectPodium;
-        Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture, podiumTexture, deadLightningTexture;
+        Rectangle window, lightningRect, chickHicksRect, fireRect, deadLightningRect, chickHicksRectPodium, pistonCupRect;
+        Texture2D trackTexture, lightningTexture, chickHicksTexture, introTexture, fireTexture, podiumTexture, deadLightningTexture, pistonCupTexture, endTexture;
         Vector2 lightningSpeed, chickHicksSpeed, deadLightningSpeed, chickHicksSpeedPodium; 
         Screen screen;
         MouseState mouseState;
@@ -26,6 +26,8 @@ namespace topic_1_5_summative
         SpriteFont talkingFont;
         float chickRotation = 0f;
         bool isspinning = false;
+        float cupRotation = 0f;
+        bool cupisspinning = false;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -50,6 +52,8 @@ namespace topic_1_5_summative
             deadLightningSpeed = new Vector2(0, 0);
             chickHicksRectPodium = new Rectangle(360, 420, 120, 70);
             chickHicksSpeedPodium = new Vector2(0, 0);
+            pistonCupRect = new Rectangle(350,445,70,70);
+           
 
             screen = Screen.intro;
 
@@ -68,6 +72,8 @@ namespace topic_1_5_summative
             podiumTexture = Content.Load<Texture2D>("podium");
             deadLightningTexture = Content.Load<Texture2D>("deadLightning");
             talkingFont = Content.Load<SpriteFont>("talking");
+            pistonCupTexture = Content.Load<Texture2D>("pistonCup");
+            endTexture = Content.Load<Texture2D>("ending");
         }
 
         protected override void Update(GameTime gameTime)
@@ -115,6 +121,8 @@ namespace topic_1_5_summative
                 if (chickHicksRect.Top >= 600)
                 {
                     screen = Screen.podium;
+                    deadLightningSpeed.X = -2;
+
                 }
             }
             else if (screen == Screen.podium)
@@ -122,9 +130,9 @@ namespace topic_1_5_summative
                 deadLightningRect.X += (int)deadLightningSpeed.X;
                 chickHicksRectPodium.X += (int)chickHicksSpeedPodium.X;
                 chickHicksRectPodium.Y += (int)chickHicksSpeedPodium.Y;
-                deadLightningSpeed.X = -2;
                 
-               if (deadLightningRect.X <= chickHicksRectPodium.Right)
+
+                if (deadLightningRect.X <= chickHicksRectPodium.Right)
                 {
 
                     chickHicksSpeedPodium.X = -5;
@@ -142,15 +150,36 @@ namespace topic_1_5_summative
                     }
                 }
 
-               if (deadLightningRect.X <= 360)
+               if (deadLightningRect.X <= 360 && deadLightningSpeed != Vector2.Zero)
                 {
-                    deadLightningSpeed.X = 0;
+                    deadLightningSpeed = Vector2.Zero;
+                    cupisspinning = true;
+                }
+                if (cupisspinning)
+                {
+                    seconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                    cupRotation -= 0.2f;
+                    if (cupRotation <= 3 * -MathHelper.TwoPi)
+                    {
+                        cupRotation = 0f;
+                        cupisspinning = false;
+                    }
+                    if (seconds >= 7)
+                    {
+                        screen = Screen.end;
+                    }
                 }
 
             }
 
+            else if (screen == Screen.end)
+            {
 
-            base.Update(gameTime);
+            }
+
+
+                base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -168,6 +197,10 @@ namespace topic_1_5_summative
                 _spriteBatch.Draw(trackTexture, window, Color.White);
                 _spriteBatch.Draw(lightningTexture, lightningRect, Color.White);
                 _spriteBatch.Draw(chickHicksTexture, chickHicksRect, Color.White);
+                if (chickHicksRect.Left <= lightningRect.Right)
+                {
+                    _spriteBatch.DrawString(talkingFont, "You're done!!", new Vector2(390, 250), Color.White);
+                }
                 if (lightningRect.Right <= 320)
                 {
                     _spriteBatch.Draw(fireTexture, fireRect, Color.White);
@@ -181,9 +214,16 @@ namespace topic_1_5_summative
                 if (deadLightningRect.X <= 360)
                 {
                     _spriteBatch.DrawString(talkingFont, "Im Backkk!", new Vector2(444, 411), Color.White);
+                    _spriteBatch.Draw(pistonCupTexture, pistonCupRect, null, Color.White, cupRotation, new Vector2(pistonCupTexture.Width / 2, pistonCupTexture.Height / 2), SpriteEffects.None, 0f);
                 }
             }
-                _spriteBatch.End();
+            else if (screen == Screen.end)
+            {
+                _spriteBatch.Draw(endTexture, window, Color.White);
+            }
+
+
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
