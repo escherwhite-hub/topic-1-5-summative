@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Runtime.Versioning;
@@ -28,6 +29,7 @@ namespace topic_1_5_summative
         bool isspinning = false;
         float cupRotation = 0f;
         bool cupisspinning = false;
+        SoundEffect explosion;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -74,6 +76,7 @@ namespace topic_1_5_summative
             talkingFont = Content.Load<SpriteFont>("talking");
             pistonCupTexture = Content.Load<Texture2D>("pistonCup");
             endTexture = Content.Load<Texture2D>("ending");
+            explosion = Content.Load<SoundEffect>("explosion");
         }
 
         protected override void Update(GameTime gameTime)
@@ -113,9 +116,14 @@ namespace topic_1_5_summative
 
                if (lightningRect.Right <= 320)
                 {
+                    
                     lightningSpeed.X = 0;
                     chickHicksSpeed.X = 0;
-                    chickHicksSpeed.Y = 3;
+                    chickHicksSpeed.Y = 4;
+                }
+               if (lightningRect.Right == 323)
+               {
+                    explosion.Play();
                 }
 
                 if (chickHicksRect.Top >= 600)
@@ -177,8 +185,6 @@ namespace topic_1_5_summative
             {
 
             }
-
-
                 base.Update(gameTime);
         }
 
